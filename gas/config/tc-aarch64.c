@@ -1500,7 +1500,7 @@ s_unreq (int a ATTRIBUTE_UNUSED)
 
 /* Directives: Instruction set selection.  */
 
-#ifdef OBJ_ELF
+#if defined(OBJ_ELF) || defined(OBJ_COFF)
 /* This code is to handle mapping symbols as defined in the ARM AArch64 ELF
    spec.  (See "Mapping symbols", section 4.5.4, ARM AAELF64 version 0.05).
    Note that previously, $a and $t has type STT_FUNC (BSF_OBJECT flag),
@@ -2054,6 +2054,7 @@ s_aarch64_inst (int ignored ATTRIBUTE_UNUSED)
   demand_empty_rest_of_line ();
 }
 
+#ifdef OBJ_ELF
 static void
 s_aarch64_cfi_b_key_frame (int ignored ATTRIBUTE_UNUSED)
 {
@@ -2062,7 +2063,6 @@ s_aarch64_cfi_b_key_frame (int ignored ATTRIBUTE_UNUSED)
   fde->pauth_key = AARCH64_PAUTH_KEY_B;
 }
 
-#ifdef OBJ_ELF
 /* Emit BFD_RELOC_AARCH64_TLSDESC_ADD on the next ADD instruction.  */
 
 static void
@@ -2136,8 +2136,8 @@ const pseudo_typeS md_pseudo_table[] = {
   {"arch", s_aarch64_arch, 0},
   {"arch_extension", s_aarch64_arch_extension, 0},
   {"inst", s_aarch64_inst, 0},
-  {"cfi_b_key_frame", s_aarch64_cfi_b_key_frame, 0},
 #ifdef OBJ_ELF
+  {"cfi_b_key_frame", s_aarch64_cfi_b_key_frame, 0},
   {"tlsdescadd", s_tlsdescadd, 0},
   {"tlsdesccall", s_tlsdesccall, 0},
   {"tlsdescldr", s_tlsdescldr, 0},
@@ -7466,7 +7466,7 @@ aarch64_handle_align (fragS * fragP)
   fix = bytes & (noop_size - 1);
   if (fix)
     {
-#ifdef OBJ_ELF
+#if defined(OBJ_ELF) || defined(OBJ_COFF)
       insert_data_mapping_symbol (MAP_INSN, fragP->fr_fix, fragP, fix);
 #endif
       memset (p, 0, fix);
@@ -8208,9 +8208,13 @@ md_apply_fix (fixS * fixP, valueT * valP, segT seg)
       break;
 
     case BFD_RELOC_AARCH64_TLSIE_LD_GOTTPREL_LO12_NC:
+#if defined (OBJ_MAYBE_ELF) || defined (OBJ_ELF)
       fixP->fx_r_type = (ilp32_p
 			 ? BFD_RELOC_AARCH64_TLSIE_LD32_GOTTPREL_LO12_NC
 			 : BFD_RELOC_AARCH64_TLSIE_LD64_GOTTPREL_LO12_NC);
+#else
+      fixP->fx_r_type = BFD_RELOC_AARCH64_TLSIE_LD64_GOTTPREL_LO12_NC;
+#endif
       S_SET_THREAD_LOCAL (fixP->fx_addsy);
       /* Should always be exported to object file, see
 	 aarch64_force_relocation().  */
@@ -8219,9 +8223,13 @@ md_apply_fix (fixS * fixP, valueT * valP, segT seg)
       break;
 
     case BFD_RELOC_AARCH64_TLSDESC_LD_LO12_NC:
+#if defined (OBJ_MAYBE_ELF) || defined (OBJ_ELF)
       fixP->fx_r_type = (ilp32_p
 			 ? BFD_RELOC_AARCH64_TLSDESC_LD32_LO12_NC
 			 : BFD_RELOC_AARCH64_TLSDESC_LD64_LO12);
+#else
+      fixP->fx_r_type = BFD_RELOC_AARCH64_TLSDESC_LD64_LO12;
+#endif
       S_SET_THREAD_LOCAL (fixP->fx_addsy);
       /* Should always be exported to object file, see
 	 aarch64_force_relocation().  */
@@ -8291,9 +8299,13 @@ md_apply_fix (fixS * fixP, valueT * valP, segT seg)
     case BFD_RELOC_AARCH64_LD_GOT_LO12_NC:
       /* Should always be exported to object file, see
 	 aarch64_force_relocation().  */
+#if defined (OBJ_MAYBE_ELF) || defined (OBJ_ELF)
       fixP->fx_r_type = (ilp32_p
 			 ? BFD_RELOC_AARCH64_LD32_GOT_LO12_NC
 			 : BFD_RELOC_AARCH64_LD64_GOT_LO12_NC);
+#else
+      fixP->fx_r_type = BFD_RELOC_AARCH64_LD64_GOT_LO12_NC;
+#endif
       gas_assert (!fixP->fx_done);
       gas_assert (seg->use_rela_p);
       break;
@@ -8887,7 +8899,11 @@ md_begin (void)
   cpu_variant = *mcpu_cpu_opt;
 
   /* Record the CPU type.  */
+#if defined (OBJ_MAYBE_ELF) || defined (OBJ_ELF)
   mach = ilp32_p ? bfd_mach_aarch64_ilp32 : bfd_mach_aarch64;
+#else
+  mach = bfd_mach_aarch64;
+#endif
 
   bfd_set_arch_mach (stdoutput, TARGET_ARCH, mach);
 }
@@ -9409,6 +9425,7 @@ aarch64_parse_arch (const char *str)
   return 0;
 }
 
+#if defined (OBJ_MAYBE_ELF) || defined (OBJ_ELF)
 /* ABIs.  */
 struct aarch64_option_abi_value_table
 {
@@ -9442,6 +9459,7 @@ aarch64_parse_abi (const char *str)
   as_bad (_("unknown abi `%s'\n"), str);
   return 0;
 }
+#endif
 
 static struct aarch64_long_option_table aarch64_long_opts[] = {
 #ifdef OBJ_ELF

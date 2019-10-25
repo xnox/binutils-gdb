@@ -32,6 +32,12 @@
 #undef internal_lineno
 
 /* CPU-specific setup:  */
+#ifdef TC_AARCH64
+#include "coff/aa64.h"
+#ifndef TARGET_FORMAT
+#define TARGET_FORMAT "coff-aarch64"
+#endif
+#endif
 
 #ifdef TC_ARM
 #include "coff/arm.h"

@@ -169,7 +169,7 @@ void aarch64_elf_copy_symbol_attributes (symbolS *, symbolS *);
 struct aarch64_frag_type
 {
   int recorded;
-#ifdef OBJ_ELF
+#if defined(OBJ_ELF) || defined(OBJ_COFF)
   /* If there is a mapping symbol at offset 0 in this frag,
      it will be saved in FIRST_MAP.  If there are any mapping
      symbols in this frag, the last one will be saved in
@@ -240,6 +240,32 @@ struct aarch64_segment_info_type
 extern void aarch64_after_parse_args (void);
 #define md_after_parse_args() aarch64_after_parse_args ()
 
+#elif defined(TE_PEP)
+# define GLOBAL_OFFSET_TABLE_NAME "__GLOBAL_OFFSET_TABLE_"
+# define TC_SEGMENT_INFO_TYPE		struct aarch64_segment_info_type
+
+/* This is not really an alignment operation, but it's something we
+   need to do at the same time: whenever we are figuring out the
+   alignment for data, we should check whether a $d symbol is
+   necessary.  */
+# define md_cons_align(nbytes)		mapping_state (MAP_DATA)
+
+enum mstate
+{
+  MAP_UNDEFINED = 0, /* Must be zero, for seginfo in new sections.  */
+  MAP_DATA,
+  MAP_INSN,
+};
+
+void mapping_state (enum mstate);
+
+struct aarch64_segment_info_type
+{
+  enum mstate mapstate;
+  unsigned int marked_pr_dependency;
+  aarch64_instr_sequence insn_sequence;
+};
+
 #else /* Not OBJ_ELF.  */
 #define GLOBAL_OFFSET_TABLE_NAME "__GLOBAL_OFFSET_TABLE_"
 #endif
@@ -276,8 +302,10 @@ extern void tc_aarch64_frame_initial_instructions (void);
 
 #define O_secrel O_md1
 
+#if 0
 #define TC_DWARF2_EMIT_OFFSET  tc_pe_dwarf2_emit_offset
 void tc_pe_dwarf2_emit_offset (symbolS *, unsigned int);
+#endif
 
 #endif /* TE_PE */
 
