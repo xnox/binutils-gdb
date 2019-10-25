@@ -1692,7 +1692,6 @@ ENUMX
   BFD_RELOC_8_PLTOFF
 ENUMDOC
   For ELF.
-
 ENUM
   BFD_RELOC_SIZE32
 ENUMX
@@ -8166,6 +8165,30 @@ ENUM
   BFD_RELOC_S12Z_OPR
 ENUMDOC
   S12Z relocations.
+
+ENUM
+  BFD_RELOC_SECTION
+ENUMDOC
+  Section table index
+
+ENUM
+  BFD_RELOC_AARCH64_ADD_LO12_SECREL
+ENUMDOC
+  AArch64 ADD immediate instruction, holding bits 0 to 11 of the
+  section-relative address.  Used in conjunction with
+  BFD_RELOC_AARCH64_ADD_HI12_SECREL.
+ENUM
+  BFD_RELOC_AARCH64_ADD_HI12_SECREL
+ENUMDOC
+  AArch64 ADD immediate instruction, holding bits 23 to 12 of the
+  section-relative address.  Used in conjunction with
+  BFD_RELOC_AARCH64_ADD_LO12_SECREL.
+
+ENUM
+  BFD_RELOC_AARCH64_LDST8_LO12_SECREL
+ENUMDOC
+  AArch64 8-bit load/store instruction, holding bits 0 to 11 of the
+  section-relative address.
 
 ENDSENUM
   BFD_RELOC_UNUSED

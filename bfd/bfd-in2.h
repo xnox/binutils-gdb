@@ -2287,6 +2287,7 @@ the section containing the relocation.  It depends on the specific target.  */
   BFD_RELOC_HI16_S_PLTOFF,
   BFD_RELOC_8_PLTOFF,
 
+/* Non-address based relocations. */
 /* Size relocations.  */
   BFD_RELOC_SIZE32,
   BFD_RELOC_SIZE64,
@@ -6278,6 +6279,22 @@ assembler and not (currently) written to any object files.  */
 
 /* S12Z relocations.  */
   BFD_RELOC_S12Z_OPR,
+
+  /* Section table index */
+  BFD_RELOC_SECTION,
+
+/* AArch64 ADD immediate instruction, holding bits 0 to 11 of section-relative
+ * address.  Used in conjunction with BFD_RELOC_AARCH64_ADD_HI12_SECREL.  */
+  BFD_RELOC_AARCH64_ADD_LO12_SECREL,
+
+/* AArch64 ADD immediate instruction, holding bits 23 to 12 of section-relative
+ * address.  Used in conjunction with BFD_RELOC_AARCH64_ADD_LO12_SECREL.  */
+  BFD_RELOC_AARCH64_ADD_HI12_SECREL,
+
+/* AArch64 8-bit load/store instruction, holding bits 0 to 11 of
+ * section-relative address. */
+  BFD_RELOC_AARCH64_LDST8_LO12_SECREL,
+
   BFD_RELOC_UNUSED };
 
 typedef enum bfd_reloc_code_real bfd_reloc_code_real_type;

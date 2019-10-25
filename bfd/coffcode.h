@@ -2182,6 +2182,12 @@ coff_set_arch_mach_hook (bfd *abfd, void * filehdr)
 	}
       break;
 #endif
+#ifdef AA64PEMAGIC
+    case AA64PEMAGIC:
+      arch = bfd_arch_aarch64;
+      machine = bfd_mach_aarch64;
+      break;
+#endif
 #ifdef Z80MAGIC
     case Z80MAGIC:
       arch = bfd_arch_z80;
@@ -2774,6 +2780,12 @@ coff_set_flags (bfd * abfd,
 	case bfd_mach_arm_5TE: * flagsp |= F_ARM_5; break;
 	case bfd_mach_arm_XScale: * flagsp |= F_ARM_5; break;
 	}
+      return TRUE;
+#endif
+
+#ifdef AA64PEMAGIC
+    case bfd_arch_aarch64:
+      *magicp = AA64PEMAGIC;
       return TRUE;
 #endif
 
@@ -3866,6 +3878,16 @@ coff_write_object_contents (bfd * abfd)
 #if defined(ARM)
 #define __A_MAGIC_SET__
     internal_a.magic = ZMAGIC;
+#endif
+
+#if defined(AA64)
+#if defined(ARM64_PE)
+#define __A_MAGIC_SET__
+    internal_a.magic = IMAGE_NT_OPTIONAL_HDR64_MAGIC;
+#else
+#define __A_MAGIC_SET__
+    internal_a.magic = ZMAGIC;
+#endif
 #endif
 
 #if defined MCORE_PE

@@ -191,6 +191,8 @@ coff_swap_filehdr_in (bfd * abfd, void * src, void * dst)
 
 #ifdef COFF_IMAGE_WITH_PE
 # define coff_swap_filehdr_out _bfd_XXi_only_swap_filehdr_out
+#elif defined COFF_WITH_peaa64
+# define coff_swap_filehdr_out _bfd_peaa64_only_swap_filehdr_out
 #elif defined COFF_WITH_pex64
 # define coff_swap_filehdr_out _bfd_pex64_only_swap_filehdr_out
 #elif defined COFF_WITH_pep
@@ -231,7 +233,7 @@ coff_swap_scnhdr_in (bfd * abfd, void * ext, void * in)
     {
       scnhdr_int->s_vaddr += pe_data (abfd)->pe_opthdr.ImageBase;
       /* Do not cut upper 32-bits for 64-bit vma.  */
-#ifndef COFF_WITH_pex64
+#if !defined(COFF_WITH_pex64) && !defined(COFF_WITH_peaa64)
       scnhdr_int->s_vaddr &= 0xffffffff;
 #endif
     }
@@ -438,7 +440,7 @@ pe_bfd_copy_private_bfd_data (bfd *ibfd, bfd *obfd)
 #define SIZEOF_IDATA2		(5 * 4)
 
 /* For PEx64 idata4 & 5 have thumb size of 8 bytes.  */
-#ifdef COFF_WITH_pex64
+#if defined(COFF_WITH_pex64) || defined(COFF_WITH_peaa64)
 #define SIZEOF_IDATA4		(2 * 4)
 #define SIZEOF_IDATA5		(2 * 4)
 #else
@@ -753,6 +755,15 @@ static const jump_table jtab[] =
     16, 12
   },
 #endif
+
+/* PJ FIXME this is all crap */
+#ifdef AA64PEMAGIC
+  { AA64PEMAGIC,
+    { 0x00, 0xc0, 0x9f, 0xe5, 0x00, 0xf0,
+      0x9c, 0xe5, 0x00, 0x00, 0x00, 0x00},
+    12, 8
+  },
+#endif
   { 0, { 0 }, 0, 0 }
 };
 
@@ -910,7 +921,7 @@ pe_ILF_build_a_bfd (bfd *	    abfd,
 	/* See PR 20907 for a reproducer.  */
 	goto error_return;
 
-#ifdef COFF_WITH_pex64
+#if defined(COFF_WITH_pex64) || defined(COFF_WITH_peaa64)
       ((unsigned int *) id4->contents)[0] = ordinal;
       ((unsigned int *) id4->contents)[1] = 0x80000000;
       ((unsigned int *) id5->contents)[0] = ordinal;
@@ -1203,6 +1214,12 @@ pe_ILF_object_p (bfd * abfd)
     case IMAGE_FILE_MACHINE_ARM:
 #ifdef ARMPEMAGIC
       magic = ARMPEMAGIC;
+#endif
+      break;
+
+    case IMAGE_FILE_MACHINE_AA64:
+#ifdef AA64PEMAGIC
+      magic = AA64PEMAGIC;
 #endif
       break;
 

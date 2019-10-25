@@ -568,9 +568,12 @@ BFD64_BACKENDS = \
 	mach-o-x86-64.lo \
 	mmo.lo \
 	pe-x86_64.lo \
+	pe-aa64.lo \
 	pei-ia64.lo \
+	pei-aa64.lo \
 	pei-x86_64.lo \
 	pepigen.lo \
+	peaa64igen.lo \
 	pex64igen.lo \
 	vms-alpha.lo
 
@@ -606,7 +609,9 @@ BFD64_BACKENDS_CFILES = \
 	mach-o-aarch64.c \
 	mach-o-x86-64.c \
 	mmo.c \
+	pe-aa64.c \
 	pe-x86_64.c \
+	pei-aa64.c \
 	pei-ia64.c \
 	pei-x86_64.c \
 	vms-alpha.c
@@ -666,7 +671,7 @@ BUILD_CFILES = \
 	elf32-aarch64.c elf64-aarch64.c \
 	elf32-ia64.c elf64-ia64.c \
 	elf32-riscv.c elf64-riscv.c \
-	peigen.c pepigen.c pex64igen.c
+	peigen.c pepigen.c peaa64igen.c pex64igen.c
 
 CFILES = $(SOURCE_CFILES) $(BUILD_CFILES)
 
@@ -857,6 +862,11 @@ peigen.c : peXXigen.c
 pepigen.c : peXXigen.c
 	echo "#line 1 \"peXXigen.c\"" > $@
 	$(SED) -e s/XX/pep/g < $< >> $@
+
+peaa64igen.c : peXXigen.c
+	rm -f peaa64igen.c
+	$(SED) -e s/XX/peaa64/g < $(srcdir)/peXXigen.c > peaa64igen.new
+	mv -f peaa64igen.new peaa64igen.c
 
 pex64igen.c: peXXigen.c
 	echo "#line 1 \"peXXigen.c\"" > $@
