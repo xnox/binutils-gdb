@@ -4996,6 +4996,26 @@ convert_efi_target (char *efi)
       /* Change x86_64 to x86-64.  */
       efi[7] = '-';
     }
+  else if (strcmp (efi + 4, "x64") == 0)
+    {
+      /* Change x64 to x86-64.  */
+      memcpy(&efi[4], "x86-64", sizeof("x86-64"));
+    }
+  else if (strcmp (efi + 4, "aa64") == 0)
+    {
+      /* Change aa64 to aarch64 */
+      memcpy(&efi[4], "aarch64", sizeof("aarch64"));
+    }
+#if 0
+  else if (strcmp (efi + 4, "aarch64") == 0)
+    {
+      /* no change here? */
+    }
+  else if (strcmp (efi + 4, "arm") == 0)
+    {
+      /* no change here? */
+    }
+#endif
 }
 
 /* Allocate and return a pointer to a struct section_add, initializing the
@@ -5876,7 +5896,9 @@ copy_main (int argc, char *argv[])
     {
       char *efi;
 
-      efi = xstrdup (output_target + 4);
+      efi = xcalloc (1, sizeof("efi-bsdrv-aarch64"));
+      strcpy(efi, output_target + 4);
+
       if (strncmp (efi, "bsdrv-", 6) == 0
 	  || strncmp (efi, "rtdrv-", 6) == 0)
 	efi += 2;
@@ -5893,7 +5915,9 @@ copy_main (int argc, char *argv[])
     {
       char *efi;
 
-      efi = xstrdup (output_target + 4);
+      efi = xcalloc (1, sizeof("efi-bsdrv-aarch64"));
+      strcpy(efi, output_target + 4);
+
       if (strncmp (efi, "app-", 4) == 0)
 	{
 	  if (pe_subsystem == -1)
