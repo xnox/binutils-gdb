@@ -394,6 +394,7 @@ ALL_64_EMULATION_SOURCES = \
 	eaarch64linuxb.c \
 	eaarch64linux32.c \
 	eaarch64linux32b.c \
+	eaarch64pep.c \
 	eelf32_x86_64.c \
 	eelf32b4300.c \
 	eelf32bmip.c \
@@ -483,7 +484,10 @@ HFILES = ld.h ldctor.h ldemul.h ldexp.h ldfile.h \
 	elf-hints-local.h plugin.h ldbuildid.h ldelf.h ldelfgen.h
 
 GENERATED_CFILES = ldgram.c ldlex.c deffilep.c
-GENERATED_HFILES = ldgram.h ldemul-list.h deffilep.h
+GENERATED_HFILES = ldgram.h ldemul-list.h deffilep.h epep-arch.h
+
+$(ALL_64_EMULATIONS) $(ALL_EMUL_EXTRA_OFILES) $(ALL_64_EMUL_EXTRA_OFILES) $(CFILES) $(HFILES) : | run-genscripts
+epep-arch.h : run-genscripts
 
 # Require an early dependency on the generated headers, as the dependency
 # tracking will not cause them to be built beforehand.
@@ -881,6 +885,7 @@ $(ALL_EMULATION_SOURCES) $(ALL_64_EMULATION_SOURCES): $(GEN_DEPENDS)
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eaarch64linuxb.Pc@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eaarch64linux32.Pc@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eaarch64linux32b.Pc@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eaarch64pep.Pc@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf32_x86_64.Pc@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf32b4300.Pc@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf32bmip.Pc@am__quote@

@@ -8,9 +8,14 @@ source_em()
 }
 fragment()
 {
+  local OUT=e${EMULATION_NAME}.c
+  if [ $# -gt 0 ]; then
+    local OUT=$1 && shift
+  fi
+
   if [ ${BASH_VERSINFO[3]} -ge 3 ]; then
     local lineno=$[${BASH_LINENO[0]} + 1]
-    echo >> e${EMULATION_NAME}.c "#line $lineno \"$em_script\""
+    echo >> ${OUT} "#line $lineno \"$em_script\""
   fi
-  cat >> e${EMULATION_NAME}.c
+  cat >> ${OUT}
 }

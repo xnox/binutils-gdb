@@ -19,6 +19,8 @@
    Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
    MA 02110-1301, USA.  */
 
+#include "epep-arch.h"
+
 #include "sysdep.h"
 #include "bfd.h"
 #include "bfdlink.h"
@@ -42,7 +44,7 @@
 #include "../bfd/libcoff.h"
 #include "deffile.h"
 
-#ifdef pe_use_x86_64
+#if defined(pe_use_x86_64) || defined(pe_use_aa64)
 
 #define PE_IDATA4_SIZE	8
 #define PE_IDATA5_SIZE	8
@@ -246,6 +248,7 @@ static const autofilter_entry_type autofilter_symbollist_i386[] =
 #define PE_ARCH_mips	 3
 #define PE_ARCH_arm	 4
 #define PE_ARCH_arm_wince 5
+#define PE_ARCH_aa64	 6
 
 /* Don't make it constant as underscore mode gets possibly overriden
    by target or -(no-)leading-underscore option.  */
@@ -327,6 +330,17 @@ static pe_details_type pe_detail_list[] =
     FALSE,
     autofilter_symbollist_generic
   },
+#ifdef pe_use_aa64
+  {
+    "pei-aa64",
+    "pe-aa64",
+    2, /* ARM64_RVA32 */
+    PE_ARCH_aa64,
+    bfd_arch_aarch64,
+    FALSE,
+    autofilter_symbollist_generic
+  },
+#endif
   { NULL, NULL, 0, 0, 0, FALSE, NULL }
 };
 
@@ -1626,7 +1640,7 @@ generate_reloc (bfd *abfd, struct bfd_link_info *info)
 		  switch BITS_AND_SHIFT (relocs[i]->howto->bitsize,
 					 relocs[i]->howto->rightshift)
 		    {
-#ifdef pe_use_x86_64
+#if defined(pe_use_x86_64) || defined(pe_use_aa64)
 		    case BITS_AND_SHIFT (64, 0):
 		      reloc_data[total_relocs].type = 10;
 		      total_relocs++;
@@ -2266,6 +2280,12 @@ static const unsigned char jmp_arm_bytes[] =
   0,    0,    0,    0
 };
 
+static const unsigned char jmp_aa64_bytes[] =
+{
+				/* .L0:		*/
+  0x00, 0x00, 0x00, 0x10,	/* adr	x0, .L0	*/
+  0xff, 0xff, 0xff, 0x17,	/* b	.L0	*/
+};
 
 static bfd *
 make_one (def_file_export *exp, bfd *parent, bfd_boolean include_jmp_stub)
@@ -2304,6 +2324,10 @@ make_one (def_file_export *exp, bfd *parent, bfd_boolean include_jmp_stub)
 	case PE_ARCH_arm_wince:
 	  jmp_bytes = jmp_arm_bytes;
 	  jmp_byte_count = sizeof (jmp_arm_bytes);
+	  break;
+	case PE_ARCH_aa64:
+	  jmp_bytes = jmp_aa64_bytes;
+	  jmp_byte_count = sizeof (jmp_aa64_bytes);
 	  break;
 	default:
 	  abort ();
@@ -2390,6 +2414,9 @@ make_one (def_file_export *exp, bfd *parent, bfd_boolean include_jmp_stub)
 	case PE_ARCH_arm:
 	case PE_ARCH_arm_wince:
 	  quick_reloc (abfd, 8, BFD_RELOC_32, 2);
+	  break;
+	case PE_ARCH_aa64:
+	  quick_reloc (abfd, 2, BFD_RELOC_32_PCREL, 2);
 	  break;
 	default:
 	  abort ();
@@ -3360,7 +3387,7 @@ pe_implied_import_dll (const char *filename)
   /* Get pe_header, optional header and numbers of directory entries.  */
   pe_header_offset = pe_get32 (dll, 0x3c);
   opthdr_ofs = pe_header_offset + 4 + 20;
-#ifdef pe_use_x86_64
+#if defined(pe_use_x86_64) || defined(pe_use_aa64)
   num_entries = pe_get32 (dll, opthdr_ofs + 92 + 4 * 4); /*  & NumberOfRvaAndSizes.  */
 #else
   num_entries = pe_get32 (dll, opthdr_ofs + 92);
@@ -3370,7 +3397,7 @@ pe_implied_import_dll (const char *filename)
   if (num_entries < 1)
     return FALSE;
 
-#ifdef pe_use_x86_64
+#if defined(pe_use_x86_64) || defined(pe_use_aa64)
   export_rva  = pe_get32 (dll, opthdr_ofs + 96 + 4 * 4);
   export_size = pe_get32 (dll, opthdr_ofs + 100 + 4 * 4);
 #else

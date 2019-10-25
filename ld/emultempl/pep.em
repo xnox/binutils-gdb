@@ -15,6 +15,25 @@ case ${target} in
     ;;
 esac
 
+fragment epep-arch.h <<EOF
+#ifndef EPEP_ARCH_H
+#define EPEP_ARCH_H
+
+#define TARGET_IS_${EMULATION_NAME}
+
+#if defined TARGET_IS_aarch64pep
+# define COFF_WITH_peaa64
+# define pe_use_aa64
+#elif defined TARGET_IS_i386pep
+# define COFF_WITH_pex64
+# define pe_use_x86_64
+#else
+# error unknown target
+#endif
+
+#endif /* EPEP_ARCH_H */
+EOF
+
 rm -f e${EMULATION_NAME}.c
 (echo;echo;echo;echo;echo)>e${EMULATION_NAME}.c # there, now line numbers match ;-)
 fragment <<EOF
@@ -42,11 +61,7 @@ fragment <<EOF
 /* For WINDOWS_XP64 and higher */
 /* Based on pe.em, but modified for 64 bit support.  */
 
-#define TARGET_IS_${EMULATION_NAME}
-
-#define COFF_IMAGE_WITH_PE
-#define COFF_WITH_PE
-#define COFF_WITH_pex64
+#include "epep-arch.h"
 
 #include "sysdep.h"
 #include "bfd.h"

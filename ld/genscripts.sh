@@ -129,10 +129,12 @@ TOOL_LIB=$2
 
 source_sh()
 {
-  if test -n "${DEPDIR}"; then
-    echo $1 >> ${DEPDIR}/e${EMULATION_NAME}.Tc
+  if test -n "$1" -a -f "$1"; then
+    if test -n "${DEPDIR}"; then
+      echo $1 >> ${DEPDIR}/e${EMULATION_NAME}.Tc
+    fi
+    . $1
   fi
-  . $1
 }
 
 if test -n "${DEPDIR}"; then
@@ -610,16 +612,30 @@ else
   {
     source_sh $1
   }
+  initialize()
+  {
+    local OUT=e${EMULATION_NAME}.c
+    if [ $# -gt 0 ]; then
+        local OUT=$1 && shift
+    fi
+
+    > "${OUT}"
+  }
   fragment()
   {
-    cat >> e${EMULATION_NAME}.c
+    local OUT=e${EMULATION_NAME}.c
+    if [ $# -gt 0 ]; then
+        local OUT=$1 && shift
+    fi
+
+    cat >> "${OUT}"
   }
 fi
 
 # Generate e${EMULATION_NAME}.c.
 # Start with an empty file, then the sourced .em script
 # can use the "fragment" function to append.
-> e${EMULATION_NAME}.c
+rm -f e${EMULATION_NAME}.c
 source_em ${srcdir}/emultempl/${TEMPLATE_NAME-generic}.em
 
 if test -n "${DEPDIR}"; then
