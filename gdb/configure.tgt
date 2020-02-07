@@ -48,10 +48,14 @@ amd64_tobjs="ravenscar-thread.o amd64-ravenscar-thread.o \
 # 1. Get the objects per cpu in $TARG.
 
 case "${targ}" in
-aarch64*-*-*)
+aarch64*-*-elf | aarch64*-*-freebsd* | aarch64*-*-linux* | aarch64*-*-rtems*)
 	cpu_obs="aarch32-tdep.o aarch64-tdep.o arch/aarch32.o \
 		 arch/aarch64-insn.o arch/aarch64.o  ravenscar-thread.o \
 		 aarch64-ravenscar-thread.o";;
+
+aarch64*-*-pe | aarch64*-*-pep | aarch64-pe | aarch64-pep)
+	cpu_obs="aarch32-tdep.o aarch64-tdep.o arch/aarch32.o \
+		 arch/aarch64-insn.o arch/aarch64.o" ;;
 
 alpha*-*-*)
 	# Target: Alpha
