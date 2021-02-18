@@ -1,3 +1,8 @@
+2021-02-18  Nick Alcock  <nick.alcock@oracle.com>
+
+	* ctf-archive.c (ctf_archive_next): Set the name of parents in
+	single-member archives.
+
 2021-02-17  Nick Alcock  <nick.alcock@oracle.com>
 
 	* ctf-impl.h (ctf_dict_t) <ctf_symhash>: New.
