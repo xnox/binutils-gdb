@@ -622,7 +622,7 @@ const bfd_target
   '/',				/* Ar_pad_char.  */
   15,				/* Ar_max_namelen.  */
   0,				/* match priority.  */
-
+  TARGET_KEEP_UNUSED_SECTION_SYMBOLS, /* keep unused section symbols.  */
   bfd_getl64, bfd_getl_signed_64, bfd_putl64,
      bfd_getl32, bfd_getl_signed_32, bfd_putl32,
      bfd_getl16, bfd_getl_signed_16, bfd_putl16, /* Data.  */
